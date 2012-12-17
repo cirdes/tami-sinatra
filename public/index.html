@@ -1,0 +1,261 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+		<title>Eventick Analytics</title>
+		<style type="text/css"> 
+			.container {
+				margin-top: 100px;
+			}
+		</style>
+		<script src="js/jquery.min.js"></script>
+		<script src="js/highcharts.js"></script>
+		<script src="js/modules/exporting.js"></script>
+		<script type="text/javascript" src="js/themes/dark-blue.js"></script>
+	</head>
+	
+	<body>
+	<div class="navbar navbar-inverse navbar-fixed-top">
+		<div class="navbar-inner">
+			<a class="brand" href="#">TAMI 2</a>
+			<ul class="nav">
+			<li class="active"><a href="#">Home</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="container">
+		<div class="row">
+			<div class="page-header">
+				<h1> Visualização de requisições ao servido do Eventick </h1>
+			</div>
+
+			<div id="containerMix" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+			<br /><br />
+			<div id="containerPie" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+			
+		</div>
+	</div>
+	</body>
+<script type="text/javascript">
+			
+		var options = {
+			chart: {
+				renderTo: 'containerMix'
+			},
+			title: {
+				text: 'Eventick Traffic'
+			},
+			xAxis: {
+				categories: []
+			},
+			tooltip: {
+				formatter: function() {
+					var s;
+					if (this.point.name) { // the pie chart
+						s = ''+
+							this.point.name +': '+ this.y;
+					} else {
+						s = ''+
+							this.x  +': '+ this.y;
+					}
+					return s;
+				}
+			},
+			labels: {
+				items: [{
+					html: 'Method Traffic',
+					style: {
+						left: '15px',
+						top: '2px',
+						color: 'white'
+					}
+				}, {
+					html: 'URL Traffic',
+					style: {
+						left: '15px',
+						top: '100px',
+						color: 'white'
+					}
+				}]
+			},
+			plotOptions: {
+				series: {
+					cursor: 'pointer',
+					point: {
+						events: {
+							click: function() {
+								chartPie.series[0].setData([]);
+								
+								$.each(requests.urls[this.category], function(itemIndex, itemValue) {
+									var data = 	{
+												name: itemValue[0], 
+												y: itemValue[1] 
+												} 
+									
+									chartPie.series[0].addPoint(data);
+								});
+							}
+						}
+					}
+				}
+			},
+			series: [{
+				type: 'column',
+				name: 'GET',
+				data: []
+			}, {
+				type: 'column',
+				name: 'POST',
+				data: []
+			}, {
+				type: 'column',
+				name: 'PUT',
+				data: []
+			}, {
+				type: 'spline',
+				name: 'Visits',
+				data: [],
+				marker: {
+					lineWidth: 2,
+					lineColor: Highcharts.getOptions().colors[3],
+					fillColor: 'white'
+				}
+			}, {
+				type: 'pie',
+				name: 'Method Traffic',
+				data: [{
+					name: 'GET',
+					y: 0,
+					color: '#FFFF00'
+				}, {
+					name: 'POST',
+					y: 0,
+					color: '#89A54E'
+				}, {
+					name: 'PUT',
+					y: 0,
+					color: '#AA4643'
+				}],
+				center: [50, 50],
+				size: 50,
+				showInLegend: false,
+				dataLabels: {
+					enabled: false
+				}
+			}, {
+				type: 'pie',
+				name: 'URL Traffic',
+				data: [],
+				center: [550, 350],
+				size: 200,
+				showInLegend: false,
+				dataLabels: {
+					enabled: false
+				}
+			}]
+		};
+		
+		$(document).ready(function() {
+			requestData();
+		});
+		
+		var requests;
+		function requestData() {
+			$.ajax({
+				dataType: 'text',
+				url: 'requests.json',
+				success: function(string) {
+					requests = $.parseJSON(string);
+					plotGraphic(requests);
+				}
+			});
+		}
+		
+		var chart;
+		function plotGraphic(requests) {
+			
+			var qtdGET = 0; var qtdTotalGET = 0;
+			var qtdPOST = 0; var qtdTotalPOST = 0;
+			var qtdPUT = 0; var qtdTotalPUT = 0;
+			var qtdVisits = 0;
+			
+			$.each(requests.http_methods, function(itemNo, item) {
+				options.xAxis.categories.push(itemNo);
+				
+				qtdGET = (item.GET) ? parseFloat(parseFloat(item.GET)) : 0;
+				qtdPOST = (item.POST) ? parseFloat(parseFloat(item.POST)) : 0;
+				qtdPUT = (item.PUT) ? parseFloat(parseFloat(item.PUT)) : 0;
+				qtdVisits = qtdGET + qtdPOST + qtdPUT;
+				
+				options.series[0].data.push(qtdGET);
+				options.series[1].data.push(qtdPOST);
+				options.series[2].data.push(qtdPUT);
+				options.series[3].data.push(qtdVisits);
+				
+				qtdTotalGET += qtdGET;
+				qtdTotalPOST += qtdPOST;
+				qtdTotalPUT += qtdPUT;
+				
+			});
+			
+			options.series[4].data[0].y = qtdTotalGET;
+			options.series[4].data[1].y = qtdTotalPOST;
+			options.series[4].data[2].y = qtdTotalPUT;
+			
+			chart = new Highcharts.Chart(options);
+		}
+		
+		
+
+			var optionsPie = {
+				chart: {
+					renderTo: 'containerPie',
+					plotBackgroundColor: 'white',
+					plotBorderWidth: null,
+					plotShadow: false
+				},
+				title: {
+					text: 'URL Traffic'
+				},
+				tooltip: {
+					pointFormat: '<b>{point.percentage}%</b>',
+					percentageDecimals: 1
+				},
+				plotOptions: {
+					pie: {
+						allowPointSelect: true,
+						cursor: 'pointer',
+						dataLabels: {
+							enabled: true,
+							color: '#000000',
+							connectorColor: '#000000',
+							formatter: function() {
+								return '<b>'+ this.point.name +'</b>: '+ this.percentage +' %';
+							}
+						}
+					},
+					series: {
+						cursor: 'pointer',
+						point: {
+							events: {
+								click: function() {
+									this.remove();
+								}
+							}
+						}
+					}
+				},
+				series: [{
+					type: 'pie',
+					name: 'URL Traffic',
+					data: []
+				}]
+			};
+			
+			var chartPie = new Highcharts.Chart(optionsPie);
+	
+	</script>
+	
+
+</html>
