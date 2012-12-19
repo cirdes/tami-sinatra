@@ -3,7 +3,7 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
-		<title>Eventick Analytics</title>
+		<title>Eventick Traffic Visualization</title>
 		<style type="text/css"> 
 			.container {
 				margin-top: 100px;
@@ -37,7 +37,7 @@
 		</div>
 	</div>
 	</body>
-<script type="text/javascript">
+	<script type="text/javascript">
 			
 		var options = {
 			chart: {
@@ -47,7 +47,17 @@
 				text: 'Eventick Traffic'
 			},
 			xAxis: {
+				title: 
+				{ 
+					text: "Horas" 
+				},
 				categories: []
+			},
+			yAxis: {
+				title: 
+				{ 
+					text: "Acessos" 
+				}
 			},
 			tooltip: {
 				formatter: function() {
@@ -57,7 +67,7 @@
 							this.point.name +': '+ this.y;
 					} else {
 						s = ''+
-							this.x  +': '+ this.y;
+							this.x + ' : ' + this.y;
 					}
 					return s;
 				}
@@ -66,15 +76,8 @@
 				items: [{
 					html: 'Method Traffic',
 					style: {
-						left: '15px',
+						left: '1050px',
 						top: '2px',
-						color: 'white'
-					}
-				}, {
-					html: 'URL Traffic',
-					style: {
-						left: '15px',
-						top: '100px',
 						color: 'white'
 					}
 				}]
@@ -86,8 +89,8 @@
 						events: {
 							click: function() {
 								chartPie.series[0].setData([]);
-								
-								$.each(requests.urls[this.category], function(itemIndex, itemValue) {
+								chartPie.setTitle({ text: 'URL Traffic at ' + this.category });
+								$.each(requests.urls[this.category.replace('hrs','')], function(itemIndex, itemValue) {
 									var data = 	{
 												name: itemValue[0], 
 												y: itemValue[1] 
@@ -137,18 +140,8 @@
 					y: 0,
 					color: '#AA4643'
 				}],
-				center: [50, 50],
-				size: 50,
-				showInLegend: false,
-				dataLabels: {
-					enabled: false
-				}
-			}, {
-				type: 'pie',
-				name: 'URL Traffic',
-				data: [],
-				center: [550, 350],
-				size: 200,
+				center: [1100, 90],
+				size: 100,
 				showInLegend: false,
 				dataLabels: {
 					enabled: false
@@ -164,7 +157,7 @@
 		function requestData() {
 			$.ajax({
 				dataType: 'text',
-				url: 'requests.json',
+				url: 'http://tami.herokuapp.com/requests.json',
 				success: function(string) {
 					requests = $.parseJSON(string);
 					plotGraphic(requests);
@@ -181,7 +174,7 @@
 			var qtdVisits = 0;
 			
 			$.each(requests.http_methods, function(itemNo, item) {
-				options.xAxis.categories.push(itemNo);
+				options.xAxis.categories.push(itemNo + 'hrs');
 				
 				qtdGET = (item.GET) ? parseFloat(parseFloat(item.GET)) : 0;
 				qtdPOST = (item.POST) ? parseFloat(parseFloat(item.POST)) : 0;
@@ -256,6 +249,5 @@
 			var chartPie = new Highcharts.Chart(optionsPie);
 	
 	</script>
-	
 
 </html>
