@@ -27,18 +27,22 @@
 	<div class="container">
 		<div class="row">
 			<div class="page-header">
-				<h1> Visualização de requisições ao servido do Eventick </h1>
+				<h1> Visualização de requisições ao servidor do Eventick </h1>
 			</div>
 
 			<div id="containerMix" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
 			<br /><br />
 			<div id="containerPie" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+			<br /><br />
+			<div id="containerUrlTraffic" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
 			
 		</div>
 	</div>
 	</body>
 	<script type="text/javascript">
 			
+		
+		// ############################# GRÁFICO MIX (LINHA, COLUNA, PIZZA) #######################################
 		var options = {
 			chart: {
 				renderTo: 'containerMix'
@@ -149,6 +153,176 @@
 			}]
 		};
 		
+		// ############################# GRÁFICO PIZZA #######################################
+		var controlador = 0;
+		var optionsPie = {
+			chart: {
+				renderTo: 'containerPie',
+				plotBackgroundColor: 'white',
+				plotBorderWidth: null,
+				plotShadow: false
+			},
+			title: {
+				text: 'URL Traffic'
+			},
+			tooltip: {
+				pointFormat: '<b>{point.percentage}%</b>',
+				percentageDecimals: 1
+			},
+			plotOptions: {
+				pie: {
+					allowPointSelect: true,
+					cursor: 'pointer',
+					dataLabels: {
+						enabled: true,
+						color: '#000000',
+						connectorColor: '#000000',
+						formatter: function() {
+							return '<b>'+ this.point.name +'</b>: '+ this.percentage +' %';
+						}
+					}
+				},
+				series: {
+					cursor: 'pointer',
+					point: {
+						events: {
+							click: function() {
+								controlador++;
+								if(controlador == 2) {
+									chartUrlTraffic.setTitle({ text: 'URL View' }, { text: this.name });								
+									if(this.name == '"/breganaite_natal"') {
+										chartUrlTraffic.series[0].show();
+										chartUrlTraffic.series[1].hide();
+									}
+								}
+								else if(controlador == 3) {
+									this.remove();
+									controlador = 0;
+								}
+							},
+							mouseOut: function() {
+								//chartUrlTraffic.setTitle({ text: 'URL View' }, { text: this.name });								
+								
+								//if(this.name == '"/breganaite_natal"') {
+									//chartUrlTraffic.series[0].show();
+									//chartUrlTraffic.series[1].hide();
+								//}
+								
+								/*chartUrlTraffic.series[0].setData([]);
+								chartUrlTraffic.series[1].setData([]);
+								chartUrlTraffic.setTitle({ text: 'URL View' }, { text: this.name });
+								var pointName = this.name;
+								
+								//var xArray = new Array();
+								//$.each(requests.http_methods, function(itemNo, item) {
+									//xArray.push(itemNo);
+								//});
+								//chartUrlTraffic.xAxis[0].setCategories(xArray);
+								
+								$.each(requests.urls, function(itemIndex, itemValue) {
+									
+									var achou = false;
+									var acessos = 0;
+									$.each(requests.urls[itemIndex], function(itemIndex2, itemValue2) {
+										var urlName = itemValue2[0];
+										var urlQtd = itemValue2[1];
+										
+										if(urlName == pointName) {
+											achou = true;
+											acessos = urlQtd;
+										}
+									});
+									
+									if(achou) {
+										chartUrlTraffic.series[0].data.push(acessos);
+									} else { 
+										chartUrlTraffic.series[0].data.push(0);
+									}
+								});*/
+							}
+						}
+					}
+				}
+			},
+			series: [{
+				type: 'pie',
+				name: 'URL Traffic',
+				data: []
+			}]
+		};
+			
+		var chartPie = new Highcharts.Chart(optionsPie);
+		
+		
+		// ############################# GRÁFICO ÁREA #######################################
+		var optionsURLTraffic = {
+			chart: {
+				renderTo: 'containerUrlTraffic',
+				type: 'area'
+			},
+			title: {
+				text: 'Url View'
+			},
+			subtitle: {
+				text: ''
+			},
+			xAxis: {
+				title: {
+					text: 'Horas'
+				},
+				labels: {
+					formatter: function() {
+						return this.value; // clean, unformatted number for year
+					}
+				}, 
+				categories: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
+			},
+			yAxis: {
+				title: {
+					text: 'Acessos'
+				},
+				labels: {
+					formatter: function() {
+						return this.value;
+					}
+				}
+			},
+			tooltip: {
+				formatter: function() {
+					return this.series.name +' teve <b>'+
+						Highcharts.numberFormat(this.y, 0) +'</b><br/>acessos em '+ this.x + 'hora(s)';
+				}
+			},
+			plotOptions: {
+				area: {
+					//pointStart: 0,
+					marker: {
+						enabled: false,
+						symbol: 'circle',
+						radius: 2,
+						states: {
+							hover: {
+								enabled: true
+							}
+						}
+					}
+				}
+			},
+			series: [{
+				name: '/breganaite_natal',
+				data: [12,26,32,47,54,63,72,32,12,33,21,45,76,73,82,98,33,46,87,23,12,67,32]
+			}, {
+				name: '/natal_leo',
+				data: [10,22,28,22,45,52,66,15,17,28,18,55,79,65,89,90,21,30,32,15,8,30,21]
+			}]
+		};
+			
+		var chartUrlTraffic = new Highcharts.Chart(optionsURLTraffic);
+		chartUrlTraffic.series[0].hide();
+		chartUrlTraffic.series[1].hide();
+			
+			
+		
 		$(document).ready(function() {
 			requestData();
 		});
@@ -198,55 +372,6 @@
 			
 			chart = new Highcharts.Chart(options);
 		}
-		
-		
-
-			var optionsPie = {
-				chart: {
-					renderTo: 'containerPie',
-					plotBackgroundColor: 'white',
-					plotBorderWidth: null,
-					plotShadow: false
-				},
-				title: {
-					text: 'URL Traffic'
-				},
-				tooltip: {
-					pointFormat: '<b>{point.percentage}%</b>',
-					percentageDecimals: 1
-				},
-				plotOptions: {
-					pie: {
-						allowPointSelect: true,
-						cursor: 'pointer',
-						dataLabels: {
-							enabled: true,
-							color: '#000000',
-							connectorColor: '#000000',
-							formatter: function() {
-								return '<b>'+ this.point.name +'</b>: '+ this.percentage +' %';
-							}
-						}
-					},
-					series: {
-						cursor: 'pointer',
-						point: {
-							events: {
-								click: function() {
-									this.remove();
-								}
-							}
-						}
-					}
-				},
-				series: [{
-					type: 'pie',
-					name: 'URL Traffic',
-					data: []
-				}]
-			};
-			
-			var chartPie = new Highcharts.Chart(optionsPie);
 	
 	</script>
 
