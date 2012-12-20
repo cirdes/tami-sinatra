@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+		<title>Eventick Traffic Visualization</title>
+		<style type="text/css"> 
+			.container {
+				margin-top: 100px;
+			}
+		</style>
+		<script src="js/jquery.min.js"></script>
+		<script src="js/highcharts.js"></script>
+		<script src="js/modules/exporting.js"></script>
+		<script type="text/javascript" src="js/themes/dark-blue.js"></script>
+	</head>
+	
+	<body>
+	<div class="navbar navbar-inverse navbar-fixed-top">
+		<div class="navbar-inner">
+			<a class="brand" href="#">TAMI 3</a>
+			<ul class="nav">
+			<li> <a href="/">Home</a></li>
+			<li class="active"><a href="#">About</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="container">
+		<div class="row">
+			<div class="page-header">
+				<h1>Tópicos Avançados em Mídias 3 - CIn UFPE</h1>
+				<p> Cirdes Henrique - cbhf@cin.ufpe.br </p>
+				<p> Lucas Mello - lams@cin.ufpe.br </p>
+			</div>
+
+			<h2> Objetivos </h2>
+
+			<ul>
+    			<li>Propor uma nova forma de representação visual das requisições a um servido web</li>
+    			<li>Comunicar a informação de maneira clara e efetiva utilizando meios gráficos</li>
+    			<li>Processar uma quantidade muito grande de dados e extrair as informações relevantes</li>
+    			<li>Representar informações que outrora, devido a sua imensa quantidade, eram de dificil análise</li>
+    		</ul>
+
+
+			<h2> Etapas do processo de extração e visualização </h2>
+
+			<ul>
+    			<li>Redirecionamento do log do servidor web para uma máquina ubuntu linux hospedada no EC2 Amazon</li>
+    			<li>Utilização do Syslog no EC2 para filtar apenas o log vindo do Eventick </li>
+    			<li>Utilização do crontab do linux para enviar o log diário para um repositório de dados no S3 da Amazon</li>
+    			<li>Contrução de um Webservice em Ruby on Rails hospedado no Heroku e responsável por: 
+	    			<ul>	
+	    				<li>Parsear o log e extrair as informações necessárias </li>
+	    				<li>Persistir os dados em um banco Postgres </li>
+	    				<li>Construir uma pequena API que responde a requisições em formato JSON </li>
+	    			</ul>
+    			</li>
+    			<li>Construção de uma aplicação em Sinatra.rb para servir páginas html </li>
+    			<li>Utilização de Javascript para plotar os gráficos </li>
+    		</ul>
+		</div>
+	</div>
+	</body>
+</html>
